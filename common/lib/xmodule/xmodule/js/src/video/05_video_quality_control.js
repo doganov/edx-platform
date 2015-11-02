@@ -155,7 +155,6 @@ function () {
             controlStateStr = gettext('off');
             this.videoQualityControl.el
                                     .removeClass('active')
-                                    .attr('aria-pressed', 'false')
                                     .find('.control-text')
                                         .text(controlStateStr);
 
