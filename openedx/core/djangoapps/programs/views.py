@@ -10,8 +10,6 @@ from openedx.core.djangoapps.programs.utils import programs_api_client, is_stude
 
 
 log = logging.getLogger(__name__)
-# OAuth2 Client name for programs
-CLIENT_NAME = "programs"
 
 
 def get_course_programs_for_dashboard(user, course_keys):   # pylint: disable=invalid-name
@@ -34,17 +32,22 @@ def get_course_programs_for_dashboard(user, course_keys):   # pylint: disable=in
         log.warning("Programs service for student dashboard is disabled.")
         return course_programs
 
-    # unicode-ify the course keys for efficient lookup
+    # "Unicode-ify" course keys for efficient lookup.
     course_keys = map(unicode, course_keys)
+    programs_config = ProgramsApiConfig.current()
 
-    # get programs slumber-based client 'EdxRestApiClient'
+    # Initialize Programs API client.
     try:
-        api_client = programs_api_client(ProgramsApiConfig.current().internal_api_url, get_id_token(user, CLIENT_NAME))
+        api_client = programs_api_client(
+            programs_config.internal_api_url, get_id_token(
+                user,
+                programs_config.OAUTH2_CLIENT_NAME
+            )
+        )
     except Exception:   # pylint: disable=broad-except
         log.exception('Failed to initialize the Programs API client.')
         return course_programs
 
-    # get programs from api client
     try:
         response = api_client.programs.get()
     except Exception:  # pylint: disable=broad-except
@@ -56,9 +59,9 @@ def get_course_programs_for_dashboard(user, course_keys):   # pylint: disable=in
         log.warning("No programs found for the user '%s'.", user.id)
         return course_programs
 
-    # reindex the result from pgm -> course code -> course run
+    # Reindex the result from pgm -> course code -> course run
     #  to
-    # course run -> program, ignoring course runs not present in the dashboard enrollments
+    # course run -> program, ignoring course runs not present in the dashboard enrollments.
     for program in programs:
         try:
             for course_code in program['course_codes']:
