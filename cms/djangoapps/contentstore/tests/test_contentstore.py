@@ -1407,7 +1407,7 @@ class ContentStoreTest(ContentStoreTestCase, XssTestMixin):
 
     def test_course_index_view_with_course(self):
         """Test viewing the index page with an existing course"""
-        CourseFactory.create(display_name='Robot Super Educational Course')
+        CourseFactory.create(display_name='Robot Super Educational Course', emit_signals=True)
         resp = self.client.get_html('/home/')
         self.assertContains(
             resp,
@@ -1420,7 +1420,7 @@ class ContentStoreTest(ContentStoreTestCase, XssTestMixin):
         """Test that the index page correctly escapes course names with script
         tags."""
         CourseFactory.create(
-            display_name='<script>alert("course XSS")</script>'
+            display_name='<script>alert("course XSS")</script>', emit_signals=True
         )
 
         LibraryFactory.create(display_name='<script>alert("library XSS")</script>')
@@ -1899,7 +1899,7 @@ class RerunCourseTest(ContentStoreTestCase):
         """
         Test when rerunning a course with no videos, VAL copies nothing
         """
-        source_course = CourseFactory.create()
+        source_course = CourseFactory.create(emit_signals=True)
         destination_course_key = self.post_rerun_request(source_course.id)
         self.verify_rerun_course(source_course.id, destination_course_key, self.destination_course_data['display_name'])
         videos = list(get_videos_for_course(destination_course_key))
@@ -1907,7 +1907,7 @@ class RerunCourseTest(ContentStoreTestCase):
         self.assertInCourseListing(destination_course_key)
 
     def test_rerun_course_success(self):
-        source_course = CourseFactory.create()
+        source_course = CourseFactory.create(emit_signals=True)
         create_video(
             dict(
                 edx_video_id="tree-hugger",
@@ -1946,7 +1946,7 @@ class RerunCourseTest(ContentStoreTestCase):
         self.verify_rerun_course(rerun_course_key, rerun_of_rerun_course_key, rerun_of_rerun_data['display_name'])
 
     def test_rerun_course_fail_no_source_course(self):
-        existent_course_key = CourseFactory.create().id
+        existent_course_key = CourseFactory.create(emit_signals=True).id
         non_existent_course_key = CourseLocator("org", "non_existent_course", "non_existent_run")
         destination_course_key = self.post_rerun_request(non_existent_course_key)
 
@@ -1965,7 +1965,7 @@ class RerunCourseTest(ContentStoreTestCase):
         self.assertInUnsucceededCourseActions(destination_course_key)
 
     def test_rerun_course_fail_duplicate_course(self):
-        existent_course_key = CourseFactory.create().id
+        existent_course_key = CourseFactory.create(emit_signals=True).id
         destination_course_data = {
             'org': existent_course_key.org,
             'number': existent_course_key.course,

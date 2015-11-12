@@ -18,7 +18,7 @@ def have_a_course(step):
 @step(u'I have a course with 1 section$')
 def have_a_course_with_1_section(step):
     world.clear_courses()
-    course = world.CourseFactory.create()
+    course = world.CourseFactory.create(emit_signals=True)
     section = world.ItemFactory.create(parent_location=course.location)
     subsection1 = world.ItemFactory.create(
         parent_location=section.location,
@@ -29,7 +29,7 @@ def have_a_course_with_1_section(step):
 @step(u'I have a course with multiple sections$')
 def have_a_course_with_two_sections(step):
     world.clear_courses()
-    course = world.CourseFactory.create()
+    course = world.CourseFactory.create(emit_signals=True)
     section = world.ItemFactory.create(parent_location=course.location)
     subsection1 = world.ItemFactory.create(
         parent_location=section.location,

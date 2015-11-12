@@ -46,6 +46,7 @@ class TestCourseIndex(CourseTestCase):
             org='test.org_1-2',
             number='test-2.3_course',
             display_name='dotted.course.name-2',
+            emit_signals=True
         )
 
     def check_index_and_outline(self, authed_client):

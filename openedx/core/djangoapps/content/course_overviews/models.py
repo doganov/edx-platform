@@ -365,6 +365,13 @@ class CourseOverview(TimeStampedModel):
             for course_overview in CourseOverview.objects.values('id')
         ]
 
+    @classmethod
+    def get_all_courses(cls):
+        """
+        Returns all course from course overviews.
+        """
+        return cls.objects.all()
+
     def is_discussion_tab_enabled(self):
         """
         Returns True if course has discussion tab and is enabled
