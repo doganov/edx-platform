@@ -32,11 +32,15 @@ class @Problem
     @checkButtonCheckText = @checkButtonLabel.text()
     @checkButtonCheckingText = @checkButton.data('checking')
     @checkButton.click @check_fd
+    @hintButton = @$('div.action button.hint-button')
+    @hintButton.click @hint_button
+    @resetButton = @$('div.action button.reset')
+    @resetButton.click @reset
+    @showButton = @$('div.action button.show')
+    @showButton.click @show
+    @saveButton = @$('div.action button.save')
+    @saveButton.click @save
 
-    @$('div.action button.hint-button').click @hint_button
-    @$('div.action button.reset').click @reset
-    @$('div.action button.show').click @show
-    @$('div.action button.save').click @save
     # Accessibility helper for sighted keyboard users to show <clarification> tooltips on focus:
     @$('.clarification').focus (ev) =>
       icon = $(ev.target).children "i"
@@ -305,11 +309,12 @@ class @Problem
 
   check_internal: =>
     @enableCheckButton false
-
+    @enableButton @resetButton, false
+    @enableButton @saveButton, false
+    @enableButton @hintButton, false
+    @enableButton @showButton, false
     timeout_id = @enableCheckButtonAfterTimeout()
-
     Logger.log 'problem_check', @answers
-
     $.postWithPrefix("#{@url}/problem_check", @answers, (response) =>
       switch response.success
         when 'incorrect', 'correct'
@@ -322,13 +327,27 @@ class @Problem
         else
           @gentle_alert response.success
       Logger.log 'problem_graded', [@answers, response.contents], @id
+      @enableButton @resetButton, true
+      @enableButton @saveButton, true
+      @enableButton @hintButton, true
+      @enableButton @showButton, true
     ).always(@enableCheckButtonAfterResponse)
 
   reset: =>
+    @enableButton @checkButton, false
+    @enableButton @resetButton, false
+    @enableButton @saveButton, false
+    @enableButton @hintButton, false
+    @enableButton @showButton, false
     Logger.log 'problem_reset', @answers
     $.postWithPrefix "#{@url}/problem_reset", id: @id, (response) =>
         @render(response.html)
         @updateProgress response
+        @enableButton @checkButton, true
+        @enableButton @resetButton, true
+        @enableButton @saveButton, true
+        @enableButton @hintButton, true
+        @enableButton @showButton, true
 
   # TODO this needs modification to deal with javascript responses; perhaps we
   # need something where responsetypes can define their own behavior when show
@@ -412,13 +431,21 @@ class @Problem
       @save_internal()
 
   save_internal: =>
-    @enableCheckButton false
+    @enableButton @checkButton, false
+    @enableButton @resetButton, false
+    @enableButton @saveButton, false
+    @enableButton @hintButton, false
+    @enableButton @showButton, false
     Logger.log 'problem_save', @answers
     $.postWithPrefix "#{@url}/problem_save", @answers, (response) =>
       saveMessage = response.msg
       @gentle_alert saveMessage
       @updateProgress response
-      @enableCheckButton true
+      @enableButton @checkButton, true
+      @enableButton @resetButton, true
+      @enableButton @saveButton, true
+      @enableButton @hintButton, true
+      @enableButton @showButton, true
 
   refreshMath: (event, element) =>
     element = event.target unless element
@@ -675,6 +702,15 @@ class @Problem
     choicetextgroup: (element, display) =>
       element = $(element)
       element.find("section[id^='forinput']").removeClass('choicetextgroup_show_correct')
+
+  enableButton: (button, enable) =>
+    # Used to enable/disable button passed as an argument.
+    if enable
+      button.removeClass 'is-disabled'
+      button.attr({'aria-disabled': 'false'})
+    else
+      button.addClass 'is-disabled'
+      button.attr({'aria-disabled': 'true'})
 
   enableCheckButton: (enable) =>
     # Used to disable check button to reduce chance of accidental double-submissions.

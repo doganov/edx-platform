@@ -198,6 +198,29 @@ describe 'Problem', ->
         expect(@problem.el.html()).toEqual 'Incorrect!'
         expect(window.SR.readElts).toHaveBeenCalled()
 
+    it 'checks if all the capa buttons are disabled while checking', ->
+      runs ->
+        spyOn($, 'postWithPrefix').andCallFake (url, answers, callback) ->
+          callback(success: 'incorrect', contents: 'Incorrect!')
+          promise =
+            always: (callable) -> callable()
+            done: (callable) -> callable()
+        spyOn @problem, 'enableButton'
+        @problem.check()
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+      waitsFor (->
+        return jQuery.active == 0
+      ), "jQuery requests finished", 1000
+
+      runs ->
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
   describe 'reset', ->
     beforeEach ->
       @problem = new Problem($('.xblock-student_view'))
@@ -218,6 +241,28 @@ describe 'Problem', ->
         callback html: "Reset!"
       @problem.reset()
       expect(@problem.el.html()).toEqual 'Reset!'
+
+    it 'tests if all the capa buttons are disabled while resetting', ->
+      runs ->
+        spyOn($, 'postWithPrefix').andCallFake (url, answers, callback) ->
+          callback html: "Reset!"
+        spyOn @problem, 'enableButton'
+        @problem.reset()
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+      waitsFor (->
+        return jQuery.active == 0
+      ), "jQuery requests finished", 1000
+
+      runs ->
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
 
   describe 'show', ->
     beforeEach ->
@@ -538,18 +583,26 @@ describe 'Problem', ->
       runs ->
         expect(window.SR.readElts).toHaveBeenCalled()
 
-    it 'disables check button while posting', ->
+    it 'checks if all the capa buttons are disabled while saving', ->
       runs ->
         spyOn($, 'postWithPrefix').andCallFake (url, answers, callback) -> callback(success: 'OK')
-        spyOn @problem, 'enableCheckButton'
+        spyOn @problem, 'enableButton'
         @problem.save()
-        expect(@problem.enableCheckButton).toHaveBeenCalledWith false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), false
       waitsFor (->
         return jQuery.active == 0
       ), "jQuery requests finished", 1000
 
       runs ->
-        expect(@problem.enableCheckButton).toHaveBeenCalledWith true
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
+        expect(@problem.enableButton).toHaveBeenCalledWith jasmine.any(Object), true
 
   describe 'refreshMath', ->
     beforeEach ->
