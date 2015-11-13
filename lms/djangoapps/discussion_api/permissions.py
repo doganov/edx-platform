@@ -71,7 +71,7 @@ def get_editable_fields(cc_content, context):
 
     # Thread fields
     if cc_content["type"] == "thread":
-        ret |= {"following"}
+        ret |= {"following", "read"}
         if _is_author_or_privileged(cc_content, context):
             ret |= {"topic_id", "type", "title"}
         if context["is_requester_privileged"] and context["course"].is_cohorted:

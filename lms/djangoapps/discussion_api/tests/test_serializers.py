@@ -208,7 +208,7 @@ class ThreadSerializerSerializationTest(SerializerTestMixin, SharedModuleStoreTe
             "comment_list_url": "http://testserver/api/discussion/v1/comments/?thread_id=test_thread",
             "endorsed_comment_list_url": None,
             "non_endorsed_comment_list_url": None,
-            "editable_fields": ["abuse_flagged", "following", "voted"],
+            "editable_fields": ["abuse_flagged", "following", "read", "voted"],
             "read": False,
             "has_endorsed": False,
         }
@@ -561,6 +561,7 @@ class ThreadSerializerDeserializationTest(CommentsServiceMockMixin, UrlResetMixi
                 "closed": ["False"],
                 "pinned": ["False"],
                 "user_id": [str(self.user.id)],
+                "read": ["False"],
             }
         )
 
@@ -586,6 +587,7 @@ class ThreadSerializerDeserializationTest(CommentsServiceMockMixin, UrlResetMixi
                 "closed": ["False"],
                 "pinned": ["False"],
                 "user_id": [str(self.user.id)],
+                "read": ["False"],
             }
         )
         for key in data:
