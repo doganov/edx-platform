@@ -72,12 +72,12 @@ define([
             );
         });
 
-        it('Changing course start date without active certificate configuration should result in error', function () {
-            this.view.$el.find('#course-start-date')
+        it('Changing course start date without active certificate configuration should not result in error',
+            function () { this.view.$el.find('#course-start-date')
                 .val('10/06/2014')
                 .trigger('change');
-            expect(this.view.$el.find('span.message-error').text()).toContain("course must have at least one active certificate configuration");
-        });
+                expect(this.view.$el.find('span.message-error')).not.toExist();
+            });
 
         it('Selecting a course in pre-requisite drop down should save it as part of course details', function () {
             var pre_requisite_courses = ['test/CSS101/2012_T1'];
