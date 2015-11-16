@@ -794,6 +794,22 @@ class VideoPage(PageObject):
         else:
             return EmptyPromise(check_func, desc, timeout=timeout, try_interval=try_interval).fulfill()
 
+    def wait_for(self, check_func, desc, timeout=30):
+        """
+        Unprotected variant of the above
+        Calls the method provided as an argument until the Promise satisfied or BrokenPromise
+
+        Arguments:
+            check_func (callable): Function that returns a boolean indicating whether the promise is fulfilled.
+            desc (str): Description of the Promise, used in log messages.
+            timeout (float): Maximum number of seconds to wait for the Promise to be satisfied before timing out.
+
+        """
+        if result:
+            return Promise(check_func, desc, timeout=timeout).fulfill()
+        else:
+            return EmptyPromise(check_func, desc, timeout=timeout).fulfill()
+
     def wait_for_state(self, state):
         """
         Wait until `state` occurs.
