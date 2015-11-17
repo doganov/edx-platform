@@ -169,6 +169,10 @@ def instructor_dashboard_2(request, course_id):
         'create_certificate_exception',
         kwargs={'course_id': unicode(course_key), 'white_list_student': ''}
     )
+    certificate_exception_view_url = reverse(
+        'certificate_exception_view',
+        kwargs={'course_id': unicode(course_key), 'certificate_exception_id': ''}
+    )
 
     context = {
         'course': course,
@@ -178,7 +182,8 @@ def instructor_dashboard_2(request, course_id):
         'disable_buttons': disable_buttons,
         'analytics_dashboard_message': analytics_dashboard_message,
         'certificate_white_list': certificate_white_list,
-        'certificate_exception_url': certificate_exception_url
+        'certificate_exception_url': certificate_exception_url,
+        'certificate_exception_view_url': certificate_exception_view_url
     }
     return render_to_response('instructor/instructor_dashboard_2/instructor_dashboard_2.html', context)
 

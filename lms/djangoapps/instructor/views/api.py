@@ -13,7 +13,7 @@ import time
 import requests
 from django.conf import settings
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 from django.views.decorators.cache import cache_control
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.mail.message import EmailMessage
@@ -2702,6 +2702,97 @@ def start_certificate_regeneration(request, course_id):
         'success': True
     }
     return JsonResponse(response_payload)
+
+
+@ensure_csrf_cookie
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+@require_global_staff
+@require_http_methods(['POST', 'DELETE'])
+def certificate_exception_view(request, course_id, certificate_exception_id=None):
+    """
+    Add/Remove students to/from certificate white list.
+    """
+    course_key = CourseKey.from_string(course_id)
+    try:
+        certificate_exception = json.loads(request.body or '{}')
+    except ValueError:
+        return JsonResponse({
+            'success': False,
+            'message': _('Invalid Json data')
+        }, status=400)
+
+    if request.method == 'POST':
+        try:
+            exception = add_certificate_exception(certificate_exception, course_key)
+        except ValueError as error:
+            return JsonResponse({'success': False, 'message': error.message}, status=400)
+        return JsonResponse(exception)
+
+    elif request.method == 'DELETE':
+        try:
+            remove_certificate_exception(course_key, certificate_exception_id)
+        except ValueError as error:
+            return JsonResponse({'success': False, 'message': error.message}, status=400)
+
+        return JsonResponse({})
+
+
+def add_certificate_exception(certificate_exception, course_key):
+    """
+    Add a certificate exception to CertificateWhitelist table.
+    """
+    user = certificate_exception.get('user_name', '') or certificate_exception.get('user_email', '')
+    try:
+        db_user = get_user_by_username_or_email(user)
+    except ObjectDoesNotExist:
+        raise ValueError(_('Student (username/email={user}) does not exist').format(user=user))
+    except MultipleObjectsReturned:
+        raise ValueError(_('Multiple Students found with username/email={user}').format(user=user))
+
+    if CertificateWhitelist.objects.filter(user=db_user, course_id=course_key, whitelist=True).count() > 0:
+        raise ValueError(
+            _("Student (username/email={user_id} already in certificate exception list)").format(user_id=user)
+        )
+
+    certificate_white_list, created = CertificateWhitelist.objects.get_or_create(
+        user=db_user,
+        course_id=course_key,
+        defaults={
+            'whitelist': True,
+            'notes': certificate_exception.get('notes', '')
+        }
+    )
+
+    exception = dict({
+        'id': certificate_white_list.id,
+        'user_email': db_user.email,
+        'user_name': db_user.username,
+        'user_id': db_user.id,
+        'created': certificate_white_list.created.strftime("%A, %B %d, %Y"),
+    })
+
+    return exception
+
+
+def remove_certificate_exception(course_key, certificate_exception_id):
+    """
+    Remove given certificate exception from CertificateWhitelist table and
+    invalidate its GeneratedCertificate if present.
+    """
+    try:
+        certificate_exception = CertificateWhitelist.objects.get(id=certificate_exception_id, course_id=course_key)
+    except ObjectDoesNotExist:
+        raise ValueError(
+            _('Certificate exception [id={}] does not exist in certificate white list').format(certificate_exception_id)
+        )
+
+    try:
+        generated_certificate = GeneratedCertificate.objects.get(user=certificate_exception.user, course_id=course_key)
+        generated_certificate.invalidate()
+    except ObjectDoesNotExist:
+        # Certificate has not been generated yet, so just remove the certificate exception from white list
+        pass
+    certificate_exception.delete()
 
 
 @ensure_csrf_cookie

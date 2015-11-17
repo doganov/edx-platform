@@ -15,7 +15,8 @@
                 model: CertificateExceptionModel,
 
                 initialize: function(attrs, options){
-                    this.url = options.url;
+                    this.url = options.urlRoot;
+                    this.generate_certificates_url = options.generate_certificates_url;
                 },
 
                 getModel: function(attrs){
@@ -39,7 +40,7 @@
 
                     Backbone.sync(
                         'create',
-                        new CertificateWhiteList(filtered, {url: this.url + appended_url}),
+                        new CertificateWhiteList(filtered, {url: this.generate_certificates_url + appended_url}),
                         options
                     );
                 },

@@ -5,7 +5,7 @@ import json
 %>
 
 <%static:require_module module_name="js/certificates/factories/certificate_whitelist_factory" class_name="CertificateWhitelistFactory">
-        CertificateWhitelistFactory('${json.dumps(certificate_white_list)}', "${certificate_exception_url}");
+        CertificateWhitelistFactory('${json.dumps(certificate_white_list)}', "${certificate_exception_url}", "${certificate_exception_view_url}");
 </%static:require_module>
 
 <%page args="section_data"/>

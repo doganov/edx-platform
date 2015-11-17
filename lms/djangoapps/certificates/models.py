@@ -213,6 +213,25 @@ class GeneratedCertificate(models.Model):
         else:
             return query.values('status').annotate(count=Count('status'))
 
+    def invalidate(self):
+        """
+        Invalidate Generated Certificate by  marking it 'unavailable'.
+
+        Following is the list of fields with their defaults
+            1 - verify_uuid = '',
+            2 - download_uuid = '',
+            3 - download_url = '',
+            4 - grade = ''
+            5 - status = 'unavailable'
+        """
+        self.verify_uuid = ''
+        self.download_uuid = ''
+        self.download_url = ''
+        self.grade = ''
+        self.status = CertificateStatuses.unavailable
+
+        self.save()
+
 
 @receiver(post_save, sender=GeneratedCertificate)
 def handle_post_cert_generated(sender, instance, **kwargs):  # pylint: disable=no-self-argument, unused-argument

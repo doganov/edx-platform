@@ -18,12 +18,14 @@
                     'input:radio[name=generate-exception-certificates-radio]:checked',
 
                 events: {
-                    'click #generate-exception-certificates': 'generateExceptionCertificates'
+                    'click #generate-exception-certificates': 'generateExceptionCertificates',
+                    'click .delete-exception': 'removeException'
                 },
 
-                initialize: function(){
+                initialize: function(options){
+                    this.certificateWhiteListEditorView = options.certificateWhiteListEditorView;
                     // Re-render the view when an item is added to the collection
-                    this.listenTo(this.collection, 'change add', this.render);
+                    this.listenTo(this.collection, 'change add remove', this.render);
                 },
 
                 render: function(){
@@ -36,6 +38,14 @@
                     var templateSelector = "#" + name + "-tpl",
                     templateText = $(templateSelector).text();
                     return _.template(templateText);
+                },
+
+                removeException: function(event){
+                    // Delegate remove exception event to certificate white-list editor view
+                    this.certificateWhiteListEditorView.trigger('removeException', $(event.target).data());
+
+                    // avoid default click behavior of link by returning false.
+                    return false;
                 },
 
                 generateExceptionCertificates: function(){
