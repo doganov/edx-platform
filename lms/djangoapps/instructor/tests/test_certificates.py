@@ -321,7 +321,7 @@ class CertificatesInstructorApiTest(SharedModuleStoreTestCase):
         """
         self.client.login(username=self.global_staff.username, password='test')
         url = reverse(
-            'create_certificate_exception',
+            'generate_certificate_exceptions',
             kwargs={'course_id': unicode(self.course.id), 'white_list_student': ''}
         )
 
@@ -357,7 +357,7 @@ class CertificatesInstructorApiTest(SharedModuleStoreTestCase):
 
         self.client.login(username=self.global_staff.username, password='test')
         url = reverse(
-            'create_certificate_exception',
+            'generate_certificate_exceptions',
             kwargs={'course_id': unicode(self.course.id), 'white_list_student': ''}
         )
 
@@ -388,7 +388,7 @@ class CertificatesInstructorApiTest(SharedModuleStoreTestCase):
 
         self.client.login(username=self.global_staff.username, password='test')
         url = reverse(
-            'create_certificate_exception',
+            'generate_certificate_exceptions',
             kwargs={'course_id': unicode(self.course.id), 'white_list_student': ''}
         )
 
@@ -418,7 +418,7 @@ class CertificatesInstructorApiTest(SharedModuleStoreTestCase):
 
         self.client.login(username=self.global_staff.username, password='test')
         url = reverse(
-            'create_certificate_exception',
+            'generate_certificate_exceptions',
             kwargs={'course_id': unicode(self.course.id), 'white_list_student': ''}
         )
 
@@ -458,7 +458,7 @@ class CertificatesInstructorApiTest(SharedModuleStoreTestCase):
         self.client.login(username=self.global_staff.username, password='test')
 
         url_course1 = reverse(
-            'create_certificate_exception',
+            'generate_certificate_exceptions',
             kwargs={'course_id': unicode(self.course.id), 'white_list_student': ''}
         )
 
@@ -473,7 +473,7 @@ class CertificatesInstructorApiTest(SharedModuleStoreTestCase):
 
         course2 = CourseFactory.create()
         url_course2 = reverse(
-            'create_certificate_exception',
+            'generate_certificate_exceptions',
             kwargs={'course_id': unicode(course2.id), 'white_list_student': ''}
         )
 

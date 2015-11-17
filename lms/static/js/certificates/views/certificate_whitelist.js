@@ -59,7 +59,7 @@
                     return function(xhr){
                         var response = xhr;
                         $(".message").text(response.message).removeClass('msg-error').addClass('msg-success').focus();
-                        caller_object.collection.update(JSON.parse(response.data));
+                        caller_object.collection.updat(JSON.parse(response.data));
                         $('html, body').animate({
                             scrollTop: $("#certificate-exception").offset().top - 10
                         }, 1000);

@@ -53,7 +53,8 @@
                         urlRoot: this.collection.url,
                         user_name: user_name,
                         user_email: user_email,
-                        notes: notes
+                        notes: notes,
+                        new: true
                     });
 
                     if(this.collection.findWhere(model)){

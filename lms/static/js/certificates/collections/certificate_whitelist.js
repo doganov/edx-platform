@@ -35,12 +35,14 @@
 
                 sync: function(options, appended_url){
                     var filtered = this.filter(function(model){
-                        return model.isNew();
+                        return model.get('new');
                     });
+
+                    var url = this.generate_certificates_url + appended_url;
 
                     Backbone.sync(
                         'create',
-                        new CertificateWhiteList(filtered, {url: this.generate_certificates_url + appended_url}),
+                        new CertificateWhiteList(filtered, {urlRoot: url, generate_certificates_url: url}),
                         options
                     );
                 },

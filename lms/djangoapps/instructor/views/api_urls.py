@@ -154,7 +154,7 @@ urlpatterns = patterns(
         'instructor.views.api.certificate_exception_view',
         name='certificate_exception_view'),
 
-    url(r'^create_certificate_exception/(?P<white_list_student>[^/]*)',
-        'instructor.views.api.create_certificate_exception',
-        name='create_certificate_exception'),
+    url(r'^generate_certificate_exceptions/(?P<white_list_student>[^/]*)',
+        'instructor.views.api.generate_certificate_exceptions',
+        name='generate_certificate_exceptions'),
 )

@@ -166,7 +166,7 @@ def instructor_dashboard_2(request, course_id):
 
     certificate_white_list = CertificateWhitelist.get_certificate_white_list(course_key)
     certificate_exception_url = reverse(
-        'create_certificate_exception',
+        'generate_certificate_exceptions',
         kwargs={'course_id': unicode(course_key), 'white_list_student': ''}
     )
     certificate_exception_view_url = reverse(
