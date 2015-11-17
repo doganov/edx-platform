@@ -2742,6 +2742,8 @@ def add_certificate_exception(certificate_exception, course_key):
     Add a certificate exception to CertificateWhitelist table.
     """
     user = certificate_exception.get('user_name', '') or certificate_exception.get('user_email', '')
+    if not user:
+        raise ValueError(_('Student username/email is required.'))
     try:
         db_user = get_user_by_username_or_email(user)
     except ObjectDoesNotExist:
@@ -2779,11 +2781,13 @@ def remove_certificate_exception(course_key, certificate_exception_id):
     Remove given certificate exception from CertificateWhitelist table and
     invalidate its GeneratedCertificate if present.
     """
+    if not certificate_exception_id:
+        raise ValueError(_("Invalid request, Please refresh the page and try again."))
     try:
         certificate_exception = CertificateWhitelist.objects.get(id=certificate_exception_id, course_id=course_key)
     except ObjectDoesNotExist:
         raise ValueError(
-            _('Certificate exception [id={}] does not exist in certificate white list').format(certificate_exception_id)
+            _('Certificate exception [id={}] does not exist in certificate white list.').format(certificate_exception_id)
         )
 
     try:
@@ -2820,7 +2824,7 @@ def generate_certificate_exceptions(request, course_id, white_list_student=None)
         return JsonResponse(
             {
                 'success': False,
-                'message': _('nvalid data, user_id must be present for all certificate exceptions'),
+                'message': _('Invalid data, user_id must be present for all certificate exceptions.'),
                 'data': json.dumps(certificate_white_list)
             },
             status=400
@@ -2845,7 +2849,7 @@ def generate_certificate_exceptions(request, course_id, white_list_student=None)
 
     response_payload = {
         'success': True,
-        'message': _('Students added to Certificate white list successfully'),
+        'message': _('Certificate generation started for white listed students.'),
         'data': json.dumps(certificate_white_list)
     }
 

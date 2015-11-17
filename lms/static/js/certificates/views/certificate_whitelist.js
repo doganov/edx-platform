@@ -14,6 +14,7 @@
         function($, _, gettext, Backbone){
             return Backbone.View.extend({
                 el: "#white-listed-students",
+                message_div: '#certificate-white-list-editor .message',
                 generate_exception_certificates_radio:
                     'input:radio[name=generate-exception-certificates-radio]:checked',
 
@@ -55,25 +56,29 @@
                     );
                 },
 
+                showMessage: function(message, messageClass){
+                    $(this.message_div).text(message).
+                        removeClass('msg-error msg-success').addClass(messageClass).focus();
+                    $('html, body').animate({
+                        scrollTop: $(this.message_div).offset().top - 20
+                    }, 1000);
+                },
+
                 showSuccess: function(caller_object){
                     return function(xhr){
-                        var response = xhr;
-                        $(".message").text(response.message).removeClass('msg-error').addClass('msg-success').focus();
-                        caller_object.collection.updat(JSON.parse(response.data));
-                        $('html, body').animate({
-                            scrollTop: $("#certificate-exception").offset().top - 10
-                        }, 1000);
+                        caller_object.showMessage(xhr.message, 'msg-success');
                     };
                 },
 
                 showError: function(caller_object){
                     return function(xhr){
-                        var response = JSON.parse(xhr.responseText);
-                        $(".message").text(response.message).removeClass('msg-success').addClass("msg-error").focus();
-                        caller_object.collection.update(JSON.parse(response.data));
-                        $('html, body').animate({
-                            scrollTop: $("#certificate-exception").offset().top - 10
-                        }, 1000);
+                        try{
+                            var response = JSON.parse(xhr.responseText);
+                            caller_object.showMessage(response.message, 'msg-error');
+                        }
+                        catch(exception){
+                            caller_object.showMessage("Server Error, Please try again later.", 'msg-error');
+                        }
                     };
                 }
             });

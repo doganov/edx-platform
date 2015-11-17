@@ -77,7 +77,8 @@ define([
                 certificate_white_list = new CertificateWhiteListCollection(certificates_exceptions_json, {
                     parse: true,
                     canBeEmpty: true,
-                    url: certificate_exception_url
+                    urlRoot: certificate_exception_url,
+                    generate_certificates_url: certificate_exception_url
                 });
             });
 
@@ -129,7 +130,7 @@ define([
                     requests = AjaxHelpers.requests(this),
                     add_students = 'new';
 
-                certificate_white_list.add({user_name: 'test3', notes: 'test3 notes'});
+                certificate_white_list.add({user_name: 'test3', notes: 'test3 notes', new: true});
                 certificate_white_list.sync({success: successCallback, error: errorCallback}, add_students);
 
                 var expected = {
@@ -139,7 +140,8 @@ define([
                          user_name: "test3",
                          user_email: "",
                          created: "",
-                         notes: "test3 notes"}
+                         notes: "test3 notes",
+                         new: true}
                         ]
                 };
                 AjaxHelpers.expectJsonRequest(requests, 'POST', expected.url, expected.postData);
@@ -181,7 +183,9 @@ define([
                 var certificate_white_list = new CertificateWhiteListCollection(certificates_exceptions_json, {
                     parse: true,
                     canBeEmpty: true,
-                    url: certificate_exception_url
+                    urlRoot: certificate_exception_url,
+                    generate_certificates_url: certificate_exception_url
+
                 });
 
                 view = new CertificateWhiteListView({collection: certificate_white_list});
@@ -289,7 +293,8 @@ define([
                 var certificate_white_list = new CertificateWhiteListCollection(certificates_exceptions_json, {
                     parse: true,
                     canBeEmpty: true,
-                    url: certificate_exception_url
+                    urlRoot: certificate_exception_url,
+                    generate_certificates_url: certificate_exception_url
                 });
 
                 view = new CertificateWhiteListEditorView({collection: certificate_white_list});
@@ -307,14 +312,29 @@ define([
                 var message_selector='.message',
                     error_class = 'msg-error',
                     success_class = 'msg-success',
-                    success_message = 'Student Added to exception list';
+                    success_message = 'Student Added to exception list',
+                    requests = AjaxHelpers.requests(this);
 
                 var error_messages = {
                     empty_user_name_email: 'Student username/email is required.',
                     duplicate_user: 'username/email already in exception list'
                 };
 
+                AjaxHelpers.respondWithJson(
+                    requests,
+                    {
+                        id: "2",
+                        user_id : "2",
+                        user_name: "test_user",
+                        user_email : "test2@test.com",
+                        course_id: "edX/test/course",
+                        created: "Thursday, October 29, 2015",
+                        notes: "test user notes"
+                    }
+                );
+
                 // click 'Add Exception' button with empty username/email field
+                view.$el.find('#certificate-exception').val("");
                 view.$el.find('#add-exception').click();
 
                 // Verify error message for missing username/email
