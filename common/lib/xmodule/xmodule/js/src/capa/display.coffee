@@ -11,6 +11,7 @@ class @Problem
     # button from disabled to enabled
     @has_timed_out = false
     @has_response = false
+    @change_check_button_text = false
 
     @render()
 
@@ -305,14 +306,11 @@ class @Problem
 
   check: =>
     if not @check_save_waitfor(@check_internal)
-      @check_internal()
+      @change_check_button_text = true
+      @disableAllButtonsWhileRunning @enableAllButtons, @check_internal
+      @change_check_button_text = false
 
   check_internal: =>
-    @enableCheckButton false
-    @enableButton @resetButton, false
-    @enableButton @saveButton, false
-    @enableButton @hintButton, false
-    @enableButton @showButton, false
     timeout_id = @enableCheckButtonAfterTimeout()
     Logger.log 'problem_check', @answers
     $.postWithPrefix("#{@url}/problem_check", @answers, (response) =>
@@ -327,27 +325,16 @@ class @Problem
         else
           @gentle_alert response.success
       Logger.log 'problem_graded', [@answers, response.contents], @id
-      @enableButton @resetButton, true
-      @enableButton @saveButton, true
-      @enableButton @hintButton, true
-      @enableButton @showButton, true
     ).always(@enableCheckButtonAfterResponse)
 
   reset: =>
-    @enableButton @checkButton, false
-    @enableButton @resetButton, false
-    @enableButton @saveButton, false
-    @enableButton @hintButton, false
-    @enableButton @showButton, false
+    @disableAllButtonsWhileRunning @enableAllButtons, @reset_internal
+
+  reset_internal: =>
     Logger.log 'problem_reset', @answers
     $.postWithPrefix "#{@url}/problem_reset", id: @id, (response) =>
         @render(response.html)
         @updateProgress response
-        @enableButton @checkButton, true
-        @enableButton @resetButton, true
-        @enableButton @saveButton, true
-        @enableButton @hintButton, true
-        @enableButton @showButton, true
 
   # TODO this needs modification to deal with javascript responses; perhaps we
   # need something where responsetypes can define their own behavior when show
@@ -428,24 +415,14 @@ class @Problem
 
   save: =>
     if not @check_save_waitfor(@save_internal)
-      @save_internal()
+      @disableAllButtonsWhileRunning(@enableAllButtons, @save_internal)
 
   save_internal: =>
-    @enableButton @checkButton, false
-    @enableButton @resetButton, false
-    @enableButton @saveButton, false
-    @enableButton @hintButton, false
-    @enableButton @showButton, false
     Logger.log 'problem_save', @answers
     $.postWithPrefix "#{@url}/problem_save", @answers, (response) =>
       saveMessage = response.msg
       @gentle_alert saveMessage
       @updateProgress response
-      @enableButton @checkButton, true
-      @enableButton @resetButton, true
-      @enableButton @saveButton, true
-      @enableButton @hintButton, true
-      @enableButton @showButton, true
 
   refreshMath: (event, element) =>
     element = event.target unless element
@@ -703,25 +680,37 @@ class @Problem
       element = $(element)
       element.find("section[id^='forinput']").removeClass('choicetextgroup_show_correct')
 
-  enableButton: (button, enable) =>
-    # Used to enable/disable button passed as an argument.
+  disableAllButtonsWhileRunning: (buttonsHandlerCallback ,processCallback) =>
+    # Used to keep the buttons disabled while processCallback is running.
+    buttonsHandlerCallback false
+    processCallback().always -> buttonsHandlerCallback true
+
+  enableAllButtons: (enable) =>
+    # Used to enable/disable all buttons in problem.
+    @enableCheckButton enable
     if enable
-      button.removeClass 'is-disabled'
-      button.attr({'aria-disabled': 'false'})
+      @resetButton.removeClass('is-disabled').attr({'aria-disabled': 'false'})
+      @saveButton.removeClass('is-disabled').attr({'aria-disabled': 'false'})
+      @hintButton.removeClass('is-disabled').attr({'aria-disabled': 'false'})
+      @showButton.removeClass('is-disabled').attr({'aria-disabled': 'false'})
     else
-      button.addClass 'is-disabled'
-      button.attr({'aria-disabled': 'true'})
+      @resetButton.addClass('is-disabled').attr({'aria-disabled': 'true'})
+      @saveButton.addClass('is-disabled').attr({'aria-disabled': 'true'})
+      @hintButton.addClass('is-disabled').attr({'aria-disabled': 'true'})
+      @showButton.addClass('is-disabled').attr({'aria-disabled': 'true'})
 
   enableCheckButton: (enable) =>
     # Used to disable check button to reduce chance of accidental double-submissions.
     if enable
       @checkButton.removeClass 'is-disabled'
       @checkButton.attr({'aria-disabled': 'false'})
-      @checkButtonLabel.text(@checkButtonCheckText)
+      if @change_check_button_text
+        @checkButtonLabel.text(@checkButtonCheckText)
     else
       @checkButton.addClass 'is-disabled'
       @checkButton.attr({'aria-disabled': 'true'})
-      @checkButtonLabel.text(@checkButtonCheckingText)
+      if @change_check_button_text
+        @checkButtonLabel.text(@checkButtonCheckingText)
 
   enableCheckButtonAfterResponse: =>
     @has_response = true
