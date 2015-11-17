@@ -46,8 +46,7 @@ from south.modelsinspector import add_introspection_rules
 from track import contexts
 from xmodule_django.models import CourseKeyField, NoneToEmptyManager
 
-from certificates.models import GeneratedCertificate
-from certificates.models import CertificateStatuses
+from certificates.models import GeneratedCertificate, CertificateStatuses
 from course_modes.models import CourseMode
 import lms.lib.comment_client as cc
 from openedx.core.djangoapps.commerce.utils import ecommerce_api_client, ECOMMERCE_DATE_FORMAT
